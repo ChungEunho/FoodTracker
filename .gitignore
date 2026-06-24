@@ -1,7 +1,44 @@
+# ─── Secrets / Environment ───────────────────────────────────────────────────
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+# Keep .env.example — it has no real values and must be committed
+!.env.example
+
+# ─── Python ──────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
+*.pyo
 .venv/
-build/
+venv/
+*.egg-info/
 dist/
+build/
+*.spec
+
+# ─── Node / Next.js ──────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.vercel/
+
+# ─── Database ────────────────────────────────────────────────────────────────
 *.db
+*.sqlite
+*.sqlite3
+
+# ─── macOS system files ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+# VSCode: ignore most settings but allow project-level extensions/tasks
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# ─── PyInstaller build artefacts ─────────────────────────────────────────────
+dist/NutriTrack.app

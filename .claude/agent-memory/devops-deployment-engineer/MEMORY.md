@@ -1,0 +1,2 @@
+- [NutriTrack Web Migration](project-nutritrack-web-migration.md) — Platform choices, repo layout, env var naming for the macOS→web migration
+- [NutriTrack .gitignore Hygiene](project-nutritrack-gitignore-hygiene.md) — Secret-blocking .gitignore rules and which .env.example files exist

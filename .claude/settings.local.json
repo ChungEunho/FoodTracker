@@ -46,7 +46,10 @@
       "mcp__github__push_files",
       "mcp__github__list_branches",
       "mcp__github__create_or_update_file",
-      "mcp__github__get_file_contents"
+      "mcp__github__get_file_contents",
+      "Bash(read d *)",
+      "Bash(touch __TRACKED_VAR__/.gitkeep)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

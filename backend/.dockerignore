@@ -1,0 +1,29 @@
+# Secrets — never bake into the image
+.env
+.env.*
+*.pem
+*.key
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Git metadata
+.git/
+.gitignore
+
+# Tests (not needed in the production image)
+tests/
+pytest.ini
+.coverage
+
+# Editor / OS artefacts
+.DS_Store
+.idea/
+.vscode/

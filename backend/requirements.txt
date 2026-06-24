@@ -1,0 +1,20 @@
+# ─── Existing macOS app dependencies ─────────────────────────────────────────
+python-dotenv
+openai
+Pillow
+pillow-heif
+requests
+
+# ─── FastAPI web server ───────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+pydantic-settings
+
+# ─── Database ────────────────────────────────────────────────────────────────
+asyncpg
+sqlalchemy[asyncio]
+alembic
+
+# ─── Auth — Supabase JWT verification ────────────────────────────────────────
+PyJWT
+cryptography

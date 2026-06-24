@@ -1,79 +1,113 @@
-# NutriTrack — AI 기반 식사 영양 트래커
+# NutriTrack — 웹앱
 
-macOS용 데스크톱 앱. 식사 사진 또는 브랜드/메뉴명을 입력하면 칼로리와 영양성분을 자동으로 기록합니다.
+AI 기반 식사 영양 트래커. 식사 사진을 업로드하거나 브랜드/메뉴명을 입력하면 칼로리와 영양성분을 자동으로 기록합니다.
+macOS 데스크톱 앱에서 Next.js + FastAPI 풀스택 웹앱으로 전환 중입니다.
 
-## 주요 기능
+---
 
-| 탭 | 설명 |
-|---|---|
-| 이미지 분석 | 음식 사진 → AI 자동 인식 → 영양성분 계산 후 저장 |
-| 브랜드·메뉴 검색 | 브랜드명 + 메뉴명 입력 → 3단계 검색으로 영양정보 조회 |
-| 직접 입력 | 칼로리/영양소를 직접 입력해 기록 |
-| 일별 조회 | 날짜별 식사 기록 확인 및 삭제 |
-| 기간 요약 | 날짜 범위별 평균 칼로리/영양소 요약 |
-| 기록 관리 | 전체 기록 목록 조회 및 삭제 |
-
-## 영양정보 검색 순서 (브랜드·메뉴 검색)
+## 프로젝트 구조
 
 ```
-한국어 입력: 식품안전처 DB → SerpAPI(Google 검색+LLM 파싱) → LLM 직접 추정
-영어 입력:   식품안전처 DB → CalorieNinjas → SerpAPI → LLM 직접 추정
+.
+├── frontend/          # Next.js 15 (App Router) — Vercel 배포
+│   ├── app/           # 페이지 및 레이아웃 (Route Groups 사용)
+│   ├── components/    # 재사용 UI 컴포넌트
+│   ├── lib/supabase/  # Supabase 클라이언트 초기화
+│   └── public/        # 정적 에셋
+│
+├── backend/           # FastAPI (Python 3.11+) — Railway 배포
+│   ├── app/
+│   │   ├── auth/      # Supabase JWT 검증 미들웨어
+│   │   ├── routers/   # API 라우터 (meals, nutrition, vision 등)
+│   │   ├── services/  # 비즈니스 로직 (vision pipeline, nutrition search)
+│   │   └── db/        # SQLAlchemy 모델 및 세션
+│   └── alembic/       # DB 마이그레이션
+│
+└── (루트)             # 기존 macOS 앱 Python 스크립트 (step1~3, app.py 등)
 ```
 
-## 설치 및 실행
+---
 
-### 1. 의존성 설치
+## 로컬 실행 (개발 환경)
+
+### 사전 준비
+
+- Node.js 18+
+- Python 3.11+
+- Supabase CLI (`brew install supabase/tap/supabase`)
+
+### 환경변수 설정
 
 ```bash
+# Backend
+cp backend/.env.example backend/.env
+# backend/.env 를 열어 각 키 입력
+
+# Frontend
+cp frontend/.env.example frontend/.env.local
+# frontend/.env.local 를 열어 각 키 입력
+```
+
+### Backend 실행
+
+```bash
+cd backend
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. API 키 설정
-
-`.env.example`을 `.env`로 복사 후 키 입력:
+### Frontend 실행
 
 ```bash
-cp .env.example .env
-# .env 파일을 편집기로 열어 각 API 키 입력
+cd frontend
+npm install
+npm run dev
 ```
 
-필요한 API 키:
-- **OPENROUTER_API_KEY** (필수): [openrouter.ai](https://openrouter.ai) — 이미지 인식 및 LLM 추정용
-- **DATA_GO_KR_FOOD_API_KEY** (권장): [data.go.kr](https://data.go.kr) — 식품안전처 영양 DB
-- **SERPAPI_API_KEY** (권장): [serpapi.com](https://serpapi.com) — Google 검색 기반 영양정보 (무료 100회/월)
-- **CALORIE_NINJA_API_KEY** (선택): [calorieninjas.com](https://calorieninjas.com) — 영어 식품 검색
+브라우저에서 `http://localhost:3000` 접속.
 
-### 3. 실행
+---
 
-```bash
-source .venv/bin/activate
-python app.py
-```
+## 스택
 
-### 4. macOS 앱 번들 빌드 (선택)
+| 레이어 | 기술 | 비고 |
+|---|---|---|
+| Frontend | Next.js 15 (App Router) + TypeScript | React 19 |
+| Backend | FastAPI + Python 3.11 | uvicorn, asyncpg |
+| DB / Auth / Storage | Supabase | PostgreSQL + Row Level Security |
+| 이미지 업로드 | 브라우저 → Supabase Storage → URL → FastAPI | 서버에 바이너리 전달 없음 |
+| Vision / LLM | OpenRouter API (무료 비전 모델) | 10~60초 소요 가능 |
+| 영양 검색 | 식품안전처 DB → SerpAPI → CalorieNinjas → LLM 추정 | |
 
-```bash
-pip install pyinstaller
-pyinstaller NutriTrack.spec --noconfirm
-# dist/NutriTrack.app 생성됨
-# dist/.env 파일에 API 키 별도 입력 필요
-```
+---
+
+## 배포
+
+| 구성 요소 | 플랫폼 | 비고 |
+|---|---|---|
+| Frontend | Vercel | `main` 브랜치 자동 배포 |
+| Backend | Railway | 장시간 HTTP 연결 지원 (vision pipeline 용) |
+| DB / Auth / Storage | Supabase | 관리형 PostgreSQL |
+
+---
+
+## 환경변수 목록
+
+실제 값은 각 플랫폼 대시보드에서만 관리합니다. 커밋되는 파일은 `*.env.example` 뿐입니다.
+
+- `backend/.env.example` — FastAPI에 필요한 모든 키 목록
+- `frontend/.env.example` — Next.js 공개 키 (`NEXT_PUBLIC_*`) 목록
+
+---
 
 ## 이미지 인식 모델 (OpenRouter 무료)
 
-2026-06 기준 실제 동작 확인된 무료 비전 모델 순서:
+2026-06 기준 실제 동작 확인된 무료 비전 모델:
+
 1. `google/gemma-4-31b-it:free` — 31B, 가장 정확
 2. `google/gemma-4-26b-a4b-it:free` — 26B MoE
 3. `nvidia/nemotron-nano-12b-v2-vl:free` — 소형 폴백
 
 > OpenRouter 무료 티어: 50회/일 한도. 초과 시 내일 자정(UTC) 리셋.
-
-## 기술 스택
-
-- **GUI**: Python tkinter + ttk
-- **이미지 처리**: Pillow, pillow-heif
-- **LLM**: OpenRouter API (OpenAI-compatible)
-- **DB**: SQLite
-- **번들**: PyInstaller (macOS .app)
