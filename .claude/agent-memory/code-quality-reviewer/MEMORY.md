@@ -1,0 +1,2 @@
+- [User Profile](user_profile.md) — Korean developer, study project, multi-agent review pipeline (code/perf/ux)
+- [Project Patterns](project_patterns.md) — recurring anti-patterns and established conventions from first full review (2026-06-24)
