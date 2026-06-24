@@ -13,9 +13,10 @@ def env_path() -> Path:
     """
     .env 파일 위치.
     - 스크립트 실행: 프로젝트 루트의 .env
-    - .app 실행: .app 옆에 있는 .env
+    - .app 실행: .app 옆에 있는 .env (없으면 ~/Library/… 로 폴백)
     """
     if _is_frozen():
+        # sys.executable = .app/Contents/MacOS/<name>  →  4단계 위가 .app 상위 폴더
         beside_app = Path(sys.executable).parents[3] / ".env"
         if beside_app.exists():
             return beside_app

@@ -1,24 +1,7 @@
-# API 키
 .env
-
-# Python
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
 .venv/
-venv/
-
-# PyInstaller 빌드 결과
 build/
 dist/
-*.spec.bak
-
-# macOS
-.DS_Store
-*.swp
-
-# DB (사용자 데이터)
 *.db
-
-# 테스트
-test_vision.py
