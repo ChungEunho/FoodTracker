@@ -1,1 +1,0 @@
-- [Meal Tracker UX Patterns](project-meal-tracker.md) — tkinter 4-tab nutrition tracker: date quick-select, status colors, empty-state rows, delete confirmation conventions

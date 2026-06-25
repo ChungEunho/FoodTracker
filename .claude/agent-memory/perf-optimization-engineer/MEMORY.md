@@ -1,1 +1,0 @@
-- [SQLite connection idiom](project_sqlite_conn_idiom.md) — get_conn() is NOT closed by a bare `with`; use closing()

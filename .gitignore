@@ -44,3 +44,4 @@ Thumbs.db
 dist/NutriTrack.app
 .claude/agent-memory/
 **/.claude/agent-memory/
+.claude/settings.local.json
