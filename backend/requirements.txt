@@ -1,20 +1,26 @@
 # ─── Existing macOS app dependencies ─────────────────────────────────────────
-python-dotenv
-openai
-Pillow
-pillow-heif
-requests
+python-dotenv>=1.0,<2
+openai>=1.30,<2
+Pillow>=10.3,<11
+pillow-heif>=0.18,<1
+requests>=2.32,<3
 
 # ─── FastAPI web server ───────────────────────────────────────────────────────
-fastapi
-uvicorn[standard]
-pydantic-settings
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+pydantic-settings>=2.3,<3
 
 # ─── Database ────────────────────────────────────────────────────────────────
-asyncpg
-sqlalchemy[asyncio]
-alembic
+asyncpg>=0.29,<1
+sqlalchemy[asyncio]>=2.0,<3
+alembic>=1.13,<2
+
+# ─── Alembic sync driver (alembic upgrade head only) ─────────────────────────
+psycopg2-binary>=2.9,<3
 
 # ─── Auth — Supabase JWT verification ────────────────────────────────────────
-PyJWT
-cryptography
+PyJWT>=2.8,<3
+cryptography>=42.0,<45
+
+# ─── Async HTTP — Supabase Storage API and external nutrition APIs ────────────
+httpx>=0.27,<1

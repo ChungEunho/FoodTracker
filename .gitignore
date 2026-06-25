@@ -42,3 +42,5 @@ Thumbs.db
 
 # ─── PyInstaller build artefacts ─────────────────────────────────────────────
 dist/NutriTrack.app
+.claude/agent-memory/
+**/.claude/agent-memory/
