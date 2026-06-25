@@ -13,12 +13,11 @@ RUN adduser --disabled-password --gecos "" appuser
 COPY --chown=appuser:appuser app/ app/
 COPY --chown=appuser:appuser alembic.ini .
 COPY --chown=appuser:appuser alembic/ alembic/
-COPY --chown=appuser:appuser entrypoint.sh .
-
-RUN chmod +x entrypoint.sh
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 USER appuser
 
 EXPOSE 8000
 
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]
