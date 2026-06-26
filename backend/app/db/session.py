@@ -24,13 +24,17 @@ from app.config import settings
 
 def _make_ssl_context(database_url: str) -> ssl_lib.SSLContext | None:
     """
-    Return an SSLContext for production Supabase connections, or None for local dev.
+    Return an SSLContext for external DB connections, or None for local/internal connections.
 
     asyncpg passes this directly to the underlying TLS handshake.
-    Localhost connections skip SSL entirely — enabling it against a plain TCP
-    listener raises an error and is unnecessary for loopback traffic.
+    Internal Railway hosts (.railway.internal) and localhost skip SSL — they run on
+    private networks where certificate verification is unavailable or unnecessary.
     """
-    if "localhost" in database_url or "127.0.0.1" in database_url:
+    if (
+        "localhost" in database_url
+        or "127.0.0.1" in database_url
+        or "railway.internal" in database_url
+    ):
         return None
     ctx = ssl_lib.create_default_context()
     return ctx
