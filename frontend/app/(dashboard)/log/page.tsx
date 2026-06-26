@@ -289,7 +289,7 @@ function ImageAnalysisTab({ mealType, date, mealTime }: ImageAnalysisTabProps) {
         </div>
       )}
 
-      {phase === "failed" && error && (
+      {phase === "failed" && (
         <div>
           <div
             style={{
@@ -302,7 +302,7 @@ function ImageAnalysisTab({ mealType, date, mealTime }: ImageAnalysisTabProps) {
               color: "#ef4444",
             }}
           >
-            {error}
+            {error || "분석 중 오류가 발생했습니다. 다시 시도해주세요."}
           </div>
           <button onClick={handleReset} style={btnPrimary}>
             다시 시도

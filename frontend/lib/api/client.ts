@@ -66,7 +66,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
     const body = await res.json().catch(() => ({} as { error?: string }));
     throw new ApiError(
       res.status,
-      (body as { error?: string }).error ?? res.statusText,
+      (body as { error?: string }).error || res.statusText || `서버 오류 (${res.status})`,
       body,
     );
   }
