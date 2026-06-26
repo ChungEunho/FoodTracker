@@ -16,6 +16,8 @@ COPY --chown=appuser:appuser alembic/ alembic/
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
+ENV PYTHONPATH=/app
+
 USER appuser
 
 EXPOSE 8000
