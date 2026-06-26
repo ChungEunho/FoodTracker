@@ -100,6 +100,18 @@ async def _run_analysis(
 
         # 4. Persist to DB (user-scoped) — own session, own lifetime.
         async with AsyncSessionLocal() as db:
+            # Ensure the user row exists before inserting the meal (FK guard).
+            # Supabase Auth manages the canonical user store; our local users
+            # table is a shadow that we populate on first interaction.
+            from sqlalchemy import text
+            await db.execute(
+                text(
+                    "INSERT INTO users (id, email, created_at) "
+                    "VALUES (:id, :email, now()) ON CONFLICT (id) DO NOTHING"
+                ),
+                {"id": current_user.id, "email": current_user.email},
+            )
+
             meal = Meal(
                 user_id=current_user.id,
                 date=meal_date,
