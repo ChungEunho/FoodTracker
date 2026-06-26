@@ -32,7 +32,7 @@ import logging
 import os
 from datetime import date as date_type
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
 
 from app.auth.deps import CurrentUser, get_current_user
 from app.db.models import Meal
@@ -171,9 +171,9 @@ async def _run_analysis(
 )
 async def upload_image_for_analysis(
     file: UploadFile,
-    meal_type: str,
-    date: date_type,
-    meal_time: str | None = None,
+    meal_type: str = Form(...),
+    date: date_type = Form(...),
+    meal_time: str | None = Form(None),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> JobAcceptedResponse:
     """
