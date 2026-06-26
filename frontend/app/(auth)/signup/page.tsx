@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -19,6 +20,7 @@ function mapAuthError(message: string): string {
 }
 
 export default function SignupPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -30,7 +32,6 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
 
-    // Client-side password confirmation check before calling Supabase.
     if (password !== passwordConfirm) {
       setError("비밀번호가 일치하지 않습니다.");
       return;
@@ -39,11 +40,18 @@ export default function SignupPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       setError(mapAuthError(error.message));
       setLoading(false);
+      return;
+    }
+
+    // If email confirmation is disabled, Supabase returns a session immediately.
+    if (data.session) {
+      router.push("/log");
+      router.refresh();
       return;
     }
 
