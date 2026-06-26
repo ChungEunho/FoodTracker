@@ -83,6 +83,7 @@ async def consume(n: int = 1) -> None:
         RateLimitError: when the daily limit has been reached.
     """
     async with _lock:
+        global _calls_today
         _reset_if_new_day()
 
         remaining = _DAILY_LIMIT - _calls_today
