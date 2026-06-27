@@ -5,26 +5,28 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-/** Maps Supabase English error messages to Korean equivalents. */
+const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
+const DOMAIN = "@nutritrack.app";
+
+function toEmail(username: string) {
+  return username + DOMAIN;
+}
+
 function mapAuthError(message: string): string {
   if (message.includes("Invalid login credentials")) {
-    return "이메일 또는 비밀번호가 올바르지 않습니다.";
-  }
-  if (message.includes("Email not confirmed")) {
-    return "이메일 인증이 필요합니다. 받은 편지함을 확인해주세요.";
+    return "아이디 또는 비밀번호가 올바르지 않습니다.";
   }
   if (message.includes("User already registered")) {
-    return "이미 가입된 이메일입니다.";
+    return "이미 사용 중인 아이디입니다.";
   }
   return message;
 }
 
 export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,15 +34,22 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
 
+    if (!USERNAME_REGEX.test(username)) {
+      setError("아이디는 영문 소문자·숫자·밑줄(_)만 3~20자로 입력하세요.");
+      return;
+    }
+
     if (password !== passwordConfirm) {
       setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
     setLoading(true);
-
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email: toEmail(username),
+      password,
+    });
 
     if (error) {
       setError(mapAuthError(error.message));
@@ -48,45 +57,14 @@ export default function SignupPage() {
       return;
     }
 
-    // If email confirmation is disabled, Supabase returns a session immediately.
     if (data.session) {
       router.push("/log");
       router.refresh();
       return;
     }
 
-    setDone(true);
-  }
-
-  if (done) {
-    return (
-      <div
-        style={{
-          width: 360,
-          padding: 32,
-          background: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,.1)",
-          textAlign: "center",
-        }}
-      >
-        <h2 style={{ marginBottom: 12 }}>이메일을 확인해주세요</h2>
-        <p style={{ fontSize: 14, color: "#6b7280" }}>
-          {email}으로 인증 메일을 보냈습니다. 링크를 클릭하면 로그인됩니다.
-        </p>
-        <Link
-          href="/login"
-          style={{
-            display: "block",
-            marginTop: 20,
-            color: "#2563eb",
-            fontSize: 14,
-          }}
-        >
-          로그인으로 돌아가기
-        </Link>
-      </div>
-    );
+    // Fallback: email confirmation unexpectedly required — just send to login.
+    router.push("/login");
   }
 
   return (
@@ -104,13 +82,14 @@ export default function SignupPage() {
       </h1>
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: 4, fontSize: 14 }}>
-          이메일
+          아이디
         </label>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value.toLowerCase())}
           required
+          placeholder="영문 소문자·숫자·밑줄 3~20자"
           style={{
             width: "100%",
             padding: "8px 12px",

@@ -41,7 +41,9 @@ export default async function DashboardLayout({
       >
         <span style={{ fontWeight: 700, fontSize: 18 }}>NutriTrack</span>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontSize: 14, color: "#6b7280" }}>{user.email}</span>
+          <span style={{ fontSize: 14, color: "#6b7280" }}>
+            {user.email?.replace("@nutritrack.app", "") ?? user.email}
+          </span>
           <LogoutButton />
         </div>
       </header>

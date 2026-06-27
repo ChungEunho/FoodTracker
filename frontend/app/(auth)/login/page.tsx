@@ -1,20 +1,23 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-/** Maps Supabase English error messages to Korean equivalents. */
+const USERNAME_REGEX = /^[a-z0-9_]{3,20}$/;
+const DOMAIN = "@nutritrack.app";
+
+function toEmail(username: string) {
+  return username + DOMAIN;
+}
+
 function mapAuthError(message: string): string {
   if (message.includes("Invalid login credentials")) {
-    return "이메일 또는 비밀번호가 올바르지 않습니다.";
-  }
-  if (message.includes("Email not confirmed")) {
-    return "이메일 인증이 필요합니다. 받은 편지함을 확인해주세요.";
+    return "아이디 또는 비밀번호가 올바르지 않습니다.";
   }
   if (message.includes("User already registered")) {
-    return "이미 가입된 이메일입니다.";
+    return "이미 가입된 아이디입니다.";
   }
   return message;
 }
@@ -22,33 +25,24 @@ function mapAuthError(message: string): string {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Handle hash-based tokens from email confirmation links (implicit flow).
-  // createBrowserClient detects #access_token=... on init and fires SIGNED_IN.
-  useEffect(() => {
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        const next = searchParams.get("next") ?? "/log";
-        router.push(next);
-        router.refresh();
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [router, searchParams]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
+    if (!USERNAME_REGEX.test(username)) {
+      setError("아이디는 영문 소문자·숫자·밑줄(_)만 3~20자로 입력하세요.");
+      return;
+    }
+
+    setLoading(true);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: toEmail(username),
       password,
     });
 
@@ -58,7 +52,6 @@ function LoginForm() {
       return;
     }
 
-    // Redirect to the originally requested page, or fall back to /log.
     const next = searchParams.get("next") ?? "/log";
     router.push(next);
     router.refresh();
@@ -79,13 +72,14 @@ function LoginForm() {
       </h1>
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: 4, fontSize: 14 }}>
-          이메일
+          아이디
         </label>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value.toLowerCase())}
           required
+          placeholder="영문 소문자·숫자·밑줄 3~20자"
           style={{
             width: "100%",
             padding: "8px 12px",
